@@ -69,8 +69,13 @@ is a [controller](../basics/controller.md) and [router](../basics/router.md).
 
 ```js
 // app/controller/home.js
-module.exports = function* home() {
-  this.body = 'hi, egg';
+module.exports = app => {
+  class HomeController extends app.Controller {
+    * index() {
+      this.body = 'hi, egg';
+    }
+  }
+  return HomeController;
 };
 ```
 
@@ -80,7 +85,7 @@ Then edit the router file and add a mapping.
 ```js
 // app/router.js
 module.exports = app => {
-  app.get('/', 'home');
+  app.get('/', 'home.index');
 };
 ```
 
@@ -165,19 +170,24 @@ Then add a controller and router.
 
 ```js
 // app/controller/news.js
-exports.list = function* newsList() {
-  const dataList = {
-    list: [
-      { id: 1, title: 'this is news 1', url: '/news/1' },
-      { id: 2, title: 'this is news 2', url: '/news/2' }
-    ]
-  };
-  yield this.render('news/list.tpl', dataList);
+module.exports = app => {
+  class NewsController extends app.Controller {
+    * list() {
+      const dataList = {
+        list: [
+          { id: 1, title: 'this is news 1', url: '/news/1' },
+          { id: 2, title: 'this is news 2', url: '/news/2' }
+        ]
+      };
+      yield this.render('news/list.tpl', dataList);
+    }
+  }
+  return NewsController;
 };
 
 // app/router.js
 module.exports = app => {
-  app.get('/', 'home');
+  app.get('/', 'home.index');
   app.get('/news', 'news.list');
 };
 ```
@@ -233,10 +243,15 @@ Then slightly modify our previous controller.
 
 ```js
 // app/controller/news.js
-exports.list = function* newsList() {
-  const page = this.query.page || 1;
-  const newsList = yield this.service.news.list(page);
-  yield this.render('news/list.tpl', { list: newsList });
+module.exports = app => {
+  class NewsController extends app.Controller {
+    * list() {
+      const page = this.query.page || 1;
+      const newsList = yield this.service.news.list(page);
+      yield this.render('news/list.tpl', { list: newsList });
+    }
+  }
+  return NewsController;
 };
 ```
 
